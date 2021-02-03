@@ -13,6 +13,7 @@ type Mutation {
   RegisterUser(data: NewUserInput): UserPayload!
   DeleteUsers: String!
   DeleteUser(id: ID!): UserPayload!
+  UpdateUser(data: UserUpdateInput, id: ID!): UserPayload
 }
 
 type User {
@@ -40,4 +41,12 @@ input NewUserInput {
   password: String!
   description: String
   handicap: Float
+}
+
+input UserUpdateInput {
+  displayName: String!
+  password: String!
+  description: String
+  handicap: Float
+  image: String
 }
