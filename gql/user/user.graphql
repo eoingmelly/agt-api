@@ -1,0 +1,43 @@
+scalar Date
+
+scalar Time
+
+scalar DateTime
+
+type Query {
+  Users: UserCollectionPayload!
+  User(id: ID): UserPayload!
+}
+
+type Mutation {
+  RegisterUser(data: NewUserInput): UserPayload!
+  DeleteUsers: String!
+  DeleteUser(id: ID!): UserPayload!
+}
+
+type User {
+  id: ID
+  displayName: String!
+  email: String!
+  description: String
+  handicap: Float
+  image: String
+}
+
+type UserPayload {
+  user: User
+  error: String
+}
+
+type UserCollectionPayload {
+  users: [User]
+  error: String
+}
+
+input NewUserInput {
+  displayName: String!
+  email: String!
+  password: String!
+  description: String
+  handicap: Float
+}
