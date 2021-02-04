@@ -2,10 +2,13 @@
 const { mergeTypeDefs, mergeResolvers } = require("@graphql-tools/merge");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 const { print } = require("graphql");
-// const { composeResolvers } = require("@graphql-tools/resolvers-composition");
+const auth = require("../utils/auth");
+const { composeResolvers } = require("@graphql-tools/resolvers-composition");
 
 ////// GraphQL Schemas
 const user = require("./user/user");
+const course = require("./course/course");
+
 // const organisation = require("./organisation/organisation");
 // const folder = require("./folder/folder");
 // const folderField = require("./folder/folderFields/folderField");
@@ -19,6 +22,7 @@ const user = require("./user/user");
 // "types" array and all the resolvers in the "resolvers" array.
 const types = [
   user.typeDefs,
+  course.typeDefs,
   //   organisation.typeDefs,
   //   processPath.typeDefs,
   //   record.typeDefs,
@@ -28,6 +32,7 @@ const types = [
 ];
 const resolvers = [
   user.resolvers,
+  course.resolvers,
   //   organisation.resolvers,
   //   processPath.resolvers,
   //   record.resolvers,
@@ -37,7 +42,10 @@ const resolvers = [
 ];
 
 // Merging the typeDefs and the Resolvers
+console.log("about to merge type defs...");
+
 mergedTypes = mergeTypeDefs(types, { all: true });
+
 mergedRes = mergeResolvers(resolvers, { all: true });
 
 // This can also be saved as a file for easier loading later on when the
@@ -46,40 +54,39 @@ mergedRes = mergeResolvers(resolvers, { all: true });
 const printedTypeDefs = print(mergedTypes);
 
 //Here you can set the queries that will need Authorization
-// const resolversComposition = {
-//   //   "Query.Organisation": auth.userHasPermissions(),
-//   //   "Query.Organisations": auth.userHasPermissions(),
-//   //   //"Query.OrganisationByOrg": auth.userIsSuperUser(),
-//   //"Query.Users": auth.userHasPermissions(),
-//   //   "Mutation.createUser": auth.userHasPermissions(),
-//   //   "Query.Folders": auth.userHasPermissions(),
-//   //   "Mutation.createFolder": auth.userHasPermissions(),
-//   //   "Mutation.updateFolder": auth.userHasPermissions(),
-//   //   "Mutation.deleteFolder": auth.userHasPermissions(),
-//   //   //"Mutation.createFolderOnOrg": auth.userIsSuperUser(),
-//   //   //"Query.FoldersByOrg": auth.userIsSuperUser(),
-//   //   //"Query.FolderByOrg": auth.userIsSuperUser(),
-//   //   "Query.Records": auth.userHasPermissions(),
-//   //   "Query.Record": auth.userHasPermissions(),
-//   //   "Query.RecordsStats": auth.userHasPermissions(),
-//   //   "Query.RecordsByFolder": auth.userHasPermissions(),
-//   //   "Query.GenerateGetURL": auth.userHasPermissions(),
-//   //   //"Query.RecordsByOrg": auth.userIsSuperUser(),
-//   //   //"Query.RecordsByOrgStats": auth.userIsSuperUser(),
-//   //   "Query.FolderFields": auth.userHasPermissions(),
-//   //   //"Query.FolderFields": auth.userIsSuperUser(),
-//   //   "Mutation.updateFolderField": auth.userHasPermissions(),
-//   //   "Mutation.deleteFolderField": auth.userHasPermissions(),
-// };
+const resolversComposition = {
+  "Query.User": auth.userHasPermissions(),
+  //   "Query.Organisation": auth.userHasPermissions(),
+  //   "Query.Organisations": auth.userHasPermissions(),
+  //   //"Query.OrganisationByOrg": auth.userIsSuperUser(),
+  //"Query.Users": auth.userHasPermissions(),
+  //   "Mutation.createUser": auth.userHasPermissions(),
+  //   "Query.Folders": auth.userHasPermissions(),
+  //   "Mutation.createFolder": auth.userHasPermissions(),
+  //   "Mutation.updateFolder": auth.userHasPermissions(),
+  //   "Mutation.deleteFolder": auth.userHasPermissions(),
+  //   //"Mutation.createFolderOnOrg": auth.userIsSuperUser(),
+  //   //"Query.FoldersByOrg": auth.userIsSuperUser(),
+  //   //"Query.FolderByOrg": auth.userIsSuperUser(),
+  //   "Query.Records": auth.userHasPermissions(),
+  //   "Query.Record": auth.userHasPermissions(),
+  //   "Query.RecordsStats": auth.userHasPermissions(),
+  //   "Query.RecordsByFolder": auth.userHasPermissions(),
+  //   "Query.GenerateGetURL": auth.userHasPermissions(),
+  //   //"Query.RecordsByOrg": auth.userIsSuperUser(),
+  //   //"Query.RecordsByOrgStats": auth.userIsSuperUser(),
+  //   "Query.FolderFields": auth.userHasPermissions(),
+  //   //"Query.FolderFields": auth.userIsSuperUser(),
+  //   "Mutation.updateFolderField": auth.userHasPermissions(),
+  //   "Mutation.deleteFolderField": auth.userHasPermissions(),
+};
 // Here we add the auth.userHasPermissions function to the resolvers added
 // in the object above.
-// const composedResolvers = composeResolvers(
-//   mergedRes /*, resolversComposition*/
-// );
+const composedResolvers = composeResolvers(mergedRes, resolversComposition);
 
 const mergedSchema = makeExecutableSchema({
   typeDefs: printedTypeDefs,
-  resolvers: mergedRes,
+  resolvers: composedResolvers,
 });
 
 module.exports = mergedSchema;

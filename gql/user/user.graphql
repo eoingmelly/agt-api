@@ -1,9 +1,3 @@
-scalar Date
-
-scalar Time
-
-scalar DateTime
-
 type Query {
   Users: UserCollectionPayload!
   User(id: ID): UserPayload!

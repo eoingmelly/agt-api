@@ -1,0 +1,49 @@
+extend type Query {
+  Courses: CourseCollectionPayload!
+  Course(id: ID): CoursePayload!
+}
+
+extend type Mutation {
+  AddCourse(data: NewCourseInput): CoursePayload!
+  DeleteCourses: String!
+  DeleteCourse(id: ID!): CoursePayload!
+  UpdateCourse(data: UpdateCourseInput, id: ID!): CoursePayload!
+}
+
+type Course {
+  id: ID
+  name: String!
+  rating: Int!
+  description: String
+  par: Int
+  metres: Int
+  image: String
+}
+
+type CoursePayload {
+  course: Course
+  error: String
+}
+
+type CourseCollectionPayload {
+  courses: [Course]
+  error: String
+}
+
+input NewCourseInput {
+  name: String
+  rating: Int
+  description: String
+  par: Int
+  metres: Int
+  image: String
+}
+
+input UpdateCourseInput {
+  name: String
+  rating: Int
+  description: String
+  par: Int
+  metres: Int
+  image: String
+}
