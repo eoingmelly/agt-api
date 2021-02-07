@@ -3,12 +3,12 @@ const Schema = mongoose.Schema;
 
 const tournamentSchema = new Schema(
   {
-    name: { type: String },
     competition_type: { type: String },
-    //courses: { type: String },
-    description: { type: String },
-    handicap: { type: Number },
+    courses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
     image: { type: String },
+    name: { type: String },
+    preview_description: { type: String },
+    winner: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );

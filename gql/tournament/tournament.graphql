@@ -1,0 +1,48 @@
+extend type Query {
+  Tournaments: TournamentCollectionPayload!
+  Tournament(id: ID): TournamentPayload!
+}
+
+extend type Mutation {
+  AddTournament(data: NewTournamentInput): TournamentPayload!
+  DeleteTournaments: String!
+  DeleteTournament(id: ID!): TournamentPayload!
+  UpdateTournament(data: UpdateTournamentInput, id: ID!): TournamentPayload!
+}
+
+type Tournament {
+  id: ID
+  competition_type: String
+  courses: [Course]
+  image: String
+  name: String
+  preview_description: String
+  winner: User
+}
+
+type TournamentPayload {
+  tournament: Tournament
+  error: String
+}
+
+type TournamentCollectionPayload {
+  tournaments: [Tournament]
+  error: String
+}
+
+input NewTournamentInput {
+  competition_type: String
+  courses: [ID]
+  image: String
+  name: String!
+  preview_description: String
+}
+
+input UpdateTournamentInput {
+  competition_type: String
+  courses: [ID]
+  image: String
+  name: String
+  preview_description: String
+  winner: ID
+}
