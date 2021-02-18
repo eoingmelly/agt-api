@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const { courseHoleSchema } = require("./courseHole/courseHole.model");
 
 const courseSchema = new Schema(
   {
@@ -10,6 +11,8 @@ const courseSchema = new Schema(
     description: { type: String },
     par: { type: Number },
     metres: { type: Number },
+
+    holes: [courseHoleSchema],
   },
   { timestamps: true }
 );
