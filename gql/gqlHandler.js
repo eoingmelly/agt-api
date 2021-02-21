@@ -9,6 +9,7 @@ const { composeResolvers } = require("@graphql-tools/resolvers-composition");
 const user = require("./user/user");
 const course = require("./course/course");
 const tournament = require("./tournament/tournament");
+const roundScore = require("./score/roundScore");
 
 // const organisation = require("./organisation/organisation");
 // const folder = require("./folder/folder");
@@ -25,6 +26,7 @@ const types = [
   user.typeDefs,
   course.typeDefs,
   tournament.typeDefs,
+  roundScore.typeDefs,
   //   organisation.typeDefs,
   //   processPath.typeDefs,
   //   record.typeDefs,
@@ -36,6 +38,7 @@ const resolvers = [
   user.resolvers,
   course.resolvers,
   tournament.resolvers,
+  roundScore.resolvers,
   //   organisation.resolvers,
   //   processPath.resolvers,
   //   record.resolvers,

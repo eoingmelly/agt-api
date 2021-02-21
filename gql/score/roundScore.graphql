@@ -1,0 +1,53 @@
+extend type Query {
+  RoundScore(id: ID): RoundScorePayload
+  RoundScores: RoundScoreCollectionPayload
+}
+
+extend type Mutation {
+  AddUpdateRoundScore(id: ID, data: RoundScoreInput): RoundScorePayload
+}
+
+type RoundScore {
+  course: ID
+  gameType: gameTypeEnum
+  holesToPlay: Int
+  totalStrokes: Int
+  totalStablefordPoints: Int
+  matchplayHolesUpDown: Int
+  skinsObtained: Int
+  isLive: Boolean
+  holesPlayed: Int
+  #holeScores: [holeScores],
+  user: ID
+}
+
+input RoundScoreInput {
+  course: ID
+  gameType: gameTypeEnum
+  holesToPlay: Int
+  totalStrokes: Int
+  totalStablefordPoints: Int
+  matchplayHolesUpDown: Int
+  skinsObtained: Int
+  isLive: Boolean
+  holesPlayed: Int
+  #holeScores: [holeScores],
+  user: ID
+}
+
+enum gameTypeEnum {
+  strokeplay
+  stableford
+  matchplay
+  skins
+}
+
+type RoundScorePayload {
+  roundScore: RoundScore
+  error: String
+}
+
+type RoundScoreCollectionPayload {
+  roundScores: [RoundScore]
+  error: String
+}

@@ -21,6 +21,7 @@ const roundScoreSchema = new Schema(
     isLive: { type: Boolean },
     holesPlayed: { type: Number },
     holeScores: [holeScores],
+    user: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );
