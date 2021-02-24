@@ -1,0 +1,45 @@
+extend type Query {
+  Societies: SocietyCollectionPayload!
+  Society(id: ID): SocietyPayload!
+}
+
+extend type Mutation {
+  AddSociety(data: NewSocietyInput): SocietyPayload!
+  DeleteSociety(id: ID!): SocietyPayload!
+  UpdateSociety(data: UpdateSocietyInput, id: ID!): SocietyPayload!
+  AddUserToSociety(socId: ID, userId: ID): SocietyPayload!
+  AddTournamentToSociety(socId: ID, tourID: ID): SocietyPayload!
+}
+
+type Society {
+  id: ID
+  name: String
+  description: String
+  players: [User]
+  tournaments: [Tournament]
+  active: Boolean
+}
+
+type SocietyPayload {
+  society: Society
+  error: String
+}
+
+type SocietyCollectionPayload {
+  societies: [Society]
+  error: String
+}
+
+input NewSocietyInput {
+  name: String
+  description: String
+  players: [ID]
+  tournaments: [ID]
+}
+
+input UpdateSocietyInput {
+  name: String
+  description: String
+  players: [ID]
+  tournaments: [ID]
+}

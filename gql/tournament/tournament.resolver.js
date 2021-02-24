@@ -9,6 +9,7 @@ module.exports = {
       await tournamentsModel
         .find()
         .populate("courses")
+        .populate("players")
         .then((tours) => {
           tournaments = tours;
         })
@@ -23,7 +24,7 @@ module.exports = {
       const { userData } = ctx;
       let tournament, error;
       try {
-        tournament = await tournamentsModel.findById(id);
+        tournament = await tournamentsModel.findById(id).populate("players");
       } catch (err) {
         error = err;
       }
@@ -72,6 +73,7 @@ module.exports = {
         await tournamentsModel
           .findByIdAndDelete(id)
           .populate("courses")
+          .populate("players")
           .then(async (trn) => {
             deletedTournament = trn;
           })
@@ -97,6 +99,7 @@ module.exports = {
         await tournamentsModel
           .findByIdAndUpdate(id, updated, { new: true })
           .populate("courses")
+          .populate("players")
           .then((updated) => {
             updatedTournament = updated;
           })

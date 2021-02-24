@@ -4,8 +4,6 @@ const Schema = mongoose.Schema;
 
 const roundScoreSchema = new Schema(
   {
-    course: { type: Schema.Types.ObjectId, ref: "Course" },
-
     gameType: {
       type: String,
       default: "Strokeplay",
@@ -21,7 +19,13 @@ const roundScoreSchema = new Schema(
     isLive: { type: Boolean },
     holesPlayed: { type: Number },
     holeScores: [holeScores],
+
+    //The course upon which this round is being played.
+    course: { type: Schema.Types.ObjectId, ref: "Course" },
+    //user playing the round
     user: { type: Schema.Types.ObjectId, ref: "User" },
+    //the tournament of which this round is a part
+    tournament: { type: Schema.Types.ObjectId, ref: "Tournament" },
   },
   { timestamps: true }
 );

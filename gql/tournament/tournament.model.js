@@ -8,7 +8,9 @@ const tournamentSchema = new Schema(
     image: { type: String },
     name: { type: String },
     preview_description: { type: String },
+    players: [{ type: Schema.Types.ObjectId, ref: "User" }],
     winner: { type: Schema.Types.ObjectId, ref: "User" },
+    society: { type: Schema.Types.ObjectId, ref: "Society" },
   },
   { timestamps: true }
 );

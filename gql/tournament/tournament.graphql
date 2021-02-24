@@ -17,7 +17,9 @@ type Tournament {
   image: String
   name: String
   preview_description: String
+  players: [User]
   winner: User
+  society: Society
 }
 
 type TournamentPayload {
@@ -36,6 +38,8 @@ input NewTournamentInput {
   image: String
   name: String!
   preview_description: String
+  players: [ID]
+  society: ID
 }
 
 input UpdateTournamentInput {
@@ -44,5 +48,7 @@ input UpdateTournamentInput {
   image: String
   name: String
   preview_description: String
+  players: [ID]
   winner: ID
+  society: ID
 }

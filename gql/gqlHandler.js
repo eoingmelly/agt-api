@@ -10,6 +10,7 @@ const user = require("./user/user");
 const course = require("./course/course");
 const tournament = require("./tournament/tournament");
 const roundScore = require("./score/roundScore");
+const society = require("./society/society");
 
 // const organisation = require("./organisation/organisation");
 // const folder = require("./folder/folder");
@@ -27,6 +28,7 @@ const types = [
   course.typeDefs,
   tournament.typeDefs,
   roundScore.typeDefs,
+  society.typeDefs,
   //   organisation.typeDefs,
   //   processPath.typeDefs,
   //   record.typeDefs,
@@ -39,6 +41,7 @@ const resolvers = [
   course.resolvers,
   tournament.resolvers,
   roundScore.resolvers,
+  society.resolvers,
   //   organisation.resolvers,
   //   processPath.resolvers,
   //   record.resolvers,

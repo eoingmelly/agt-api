@@ -6,6 +6,7 @@ module.exports = {
       let users, error;
       await usersModel
         .find()
+        .populate({ path: "societies", populate: { path: "players" } })
         .then((usrs) => {
           users = usrs;
         })

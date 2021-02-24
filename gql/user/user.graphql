@@ -17,6 +17,7 @@ type User {
   description: String
   handicap: Float
   image: String
+  societies: [Society]
 }
 
 type UserPayload {
@@ -35,6 +36,7 @@ input NewUserInput {
   password: String!
   description: String
   handicap: Float
+  societies: [ID]
 }
 
 input UserUpdateInput {
@@ -43,4 +45,5 @@ input UserUpdateInput {
   description: String
   handicap: Float
   image: String
+  societies: [ID]
 }
