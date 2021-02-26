@@ -105,6 +105,27 @@ module.exports = {
       }
     },
 
+    LoginUser: async (parent, { data, id }, ctx, info) => {
+      //ctx should contain the logged in user data here, and he's the only one who can update himself.
+      //But for now, just accept that it's by id passed in.
+      // let error, updatedUser;
+      // try {
+      //   let updated = { ...data };
+      //   await usersModel
+      //     .findByIdAndUpdate(id, updated, { new: true })
+      //     .then((updated) => {
+      //       updatedUser = updated;
+      //     })
+      //     .catch((err) => {
+      //       error = err;
+      //     });
+      //   return { user: updatedUser, error };
+      // } catch (err) {
+      //   error = err;
+      //   return { user: updatedUser, error };
+      //}
+    },
+
     DeleteUsers: async (parent, { data }, ctx, info) => {
       //Just a quick clear down of ALL users, won't be keeping this!
 

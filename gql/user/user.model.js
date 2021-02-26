@@ -18,16 +18,9 @@ const userSchema = new Schema(
 userSchema.pre("save", function (next) {
   this.societies.forEach((element) => {
     societyModel.findById(element).then((soc) => {
-      console.log("e: ", element);
-      console.log("soc: ", soc);
-      console.log("my id is ", this._id);
-
       if (!soc.players.includes(this._id)) {
         soc.players.push(this._id);
-
-        console.log("we added it again anyway!");
       }
-
       soc.save();
     });
   });

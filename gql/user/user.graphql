@@ -8,6 +8,17 @@ type Mutation {
   DeleteUsers: String!
   DeleteUser(id: ID!): UserPayload!
   UpdateUser(data: UserUpdateInput, id: ID!): UserPayload
+  LoginUser(data: UserLoginInput): LoginResultPayload
+}
+
+type LoginResultPayload {
+  success: String
+  error: String
+}
+
+input UserLoginInput {
+  email: String
+  password: String
 }
 
 type User {
