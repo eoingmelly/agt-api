@@ -105,25 +105,37 @@ module.exports = {
       }
     },
 
-    LoginUser: async (parent, { data, id }, ctx, info) => {
+    LoginUser: async (parent, { data }, ctx, info) => {
       //ctx should contain the logged in user data here, and he's the only one who can update himself.
       //But for now, just accept that it's by id passed in.
-      // let error, updatedUser;
-      // try {
-      //   let updated = { ...data };
-      //   await usersModel
-      //     .findByIdAndUpdate(id, updated, { new: true })
-      //     .then((updated) => {
-      //       updatedUser = updated;
-      //     })
-      //     .catch((err) => {
-      //       error = err;
-      //     });
-      //   return { user: updatedUser, error };
-      // } catch (err) {
-      //   error = err;
-      //   return { user: updatedUser, error };
-      //}
+
+      let { email, password } = data;
+      let error = "";
+      let success = false;
+
+      console.log(error);
+      console.log(success);
+
+      try {
+        await usersModel
+          .findOne({ email_lowered: email.toLowerCase() })
+          .then((u) => {
+            if (u) {
+              if (u.password === password) {
+                success = true;
+              }
+            } else {
+              error = "No such user";
+            }
+          })
+          .catch((err) => {
+            error += err;
+          });
+        return { success, error };
+      } catch (err) {
+        error += err;
+        return { success, error };
+      }
     },
 
     DeleteUsers: async (parent, { data }, ctx, info) => {

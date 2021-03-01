@@ -11,6 +11,7 @@ const userSchema = new Schema(
     handicap: { type: Number },
     image: { type: String },
     societies: [{ type: Schema.Types.ObjectId, ref: "Society" }],
+    password: { type: String },
   },
   { timestamps: true }
 );
