@@ -8,11 +8,12 @@ type Mutation {
   DeleteUsers: String!
   DeleteUser(id: ID!): UserPayload!
   UpdateUser(data: UserUpdateInput, id: ID!): UserPayload
-  LoginUser(data: UserLoginInput): LoginResultPayload
+  LoginUser(data: UserLoginInput): SuccessPayload
+  ChangePassword(data: UserChangePasswordInput): SuccessPayload
 }
 
-type LoginResultPayload {
-  success: String
+type SuccessPayload {
+  success: Boolean
   error: String
 }
 
@@ -52,9 +53,14 @@ input NewUserInput {
 
 input UserUpdateInput {
   displayName: String!
-  password: String!
   description: String
   handicap: Float
   image: String
   societies: [ID]
+}
+
+input UserChangePasswordInput {
+  newPassword: String!
+  confirmPassword: String!
+  oldPassword: String!
 }

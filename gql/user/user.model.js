@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const { societyModel } = require("../society/society.model");
+
+const { hashPassword, updateSocieties } = require("./user.privateMethods");
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
@@ -17,14 +18,14 @@ const userSchema = new Schema(
 );
 
 userSchema.pre("save", function (next) {
-  this.societies.forEach((element) => {
-    societyModel.findById(element).then((soc) => {
-      if (!soc.players.includes(this._id)) {
-        soc.players.push(this._id);
-      }
-      soc.save();
-    });
-  });
+  updateSocieties(this);
+  hashPassword(this);
+  next();
+});
+
+userSchema.post("save", function (next) {
+  updateSocieties(this);
+  console.log("post everything: ", this);
   next();
 });
 

@@ -3,6 +3,8 @@ const db = require("./utils/db");
 const cors = require("cors");
 const { graphqlHTTP } = require("express-graphql");
 const schema = require("./gql/gqlHandler");
+const auth = require("./utils/auth");
+var cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -40,8 +42,8 @@ const server = {
     );
     app.use(
       "/graphql",
-      //   cookieParser(),
-      //   auth.verifyToken,
+      cookieParser(),
+      auth.verifyToken,
       graphqlHTTP({
         schema,
         graphiql: true,
