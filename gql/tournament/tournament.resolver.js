@@ -1,8 +1,14 @@
-const { tournaments, tournamentsModel } = require("./tournament.model");
+const { tournamentsModel } = require("./tournament.model");
 
 module.exports = {
   Query: {
     Tournaments: async (parent, args, ctx, info) => {
+      let io = args.io;
+
+      console.log("io is: ", ctx.req.io);
+
+      ctx.req.io.emit("chat message", "Someone just accessed tournaments...");
+
       let tournaments, error;
       // get userData from ctx
       const { userData } = ctx;
@@ -112,14 +118,6 @@ module.exports = {
         error = err;
         return { tournament: updatedTournament, error };
       }
-    },
-
-    DeleteCourses: async (parent, { data }, ctx, info) => {
-      //Just a quick clear down of ALL courses, won't be keeping this!
-
-      await tournamentsModel.deleteMany({});
-
-      return "All done...";
     },
   },
 };

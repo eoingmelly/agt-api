@@ -56,7 +56,11 @@ const auth = {
     // This whole code can be improved greatly in terms of security but for
     // now I think is quite sufficient.
 
-    console.log("verifying tokens, req.cookies: ", req.cookies);
+    console.log(
+      "verifying tokens, req.cookies: Also, arse...",
+      req.cookies,
+      req.arse
+    );
 
     let accesstoken = req.cookies.access_token || null;
     let refreshtoken = req.cookies.refresh_token || null;
