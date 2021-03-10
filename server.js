@@ -6,28 +6,31 @@ const schema = require("./gql/gqlHandler");
 const auth = require("./utils/auth");
 var cookieParser = require("cookie-parser");
 const path = require("path");
-const { initial } = require("lodash");
 
 const app = express();
 
-const http = require("http").Server(app);
+const http = require("http").createServer(app);
 
 const io = require("socket.io")(http);
 
-io.on("connection", (socket) => {
-  console.log("a user connected");
-  socket.on("disconnect", () => {
-    console.log("user disconnected");
-  });
+require("./utils/socketNotifications")(io);
+// io.on("connection", (socket) => {
+//   console.log("a user has connected");
+//   socket.on("disconnect", () => {
+//     console.log("user disconnected");
+//   });
 
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
-  });
-});
+//   socket.on("chat message", (msg) => {
+//     io.emit("chat message", msg);
+//   });
+
+//   socket.on("chat message", (msg) => {
+//     io.emit("chat message", msg);
+//   });
+// });
 
 const setIOInReq = (req, res, next) => {
   if (!req.io) {
-    req.arse = "arsene";
     console.log("setting in req");
     req.io = io;
   }
@@ -69,11 +72,6 @@ const server = {
       graphqlHTTP((req, res, graphQLParams) => {
         return { schema, graphiql: true, context: { req: req } };
       })
-      // graphqlHTTP({
-      //   schema,
-      //   graphiql: true,
-      //   context: {r}
-      // })
     );
 
     app.use("/socketTest", (req, res) => {

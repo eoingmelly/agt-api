@@ -1,12 +1,10 @@
 const { tournamentsModel } = require("./tournament.model");
+const io = require("socket.io");
 
 module.exports = {
   Query: {
     Tournaments: async (parent, args, ctx, info) => {
       let io = args.io;
-
-      console.log("io is: ", ctx.req.io);
-
       ctx.req.io.emit("chat message", "Someone just accessed tournaments...");
 
       let tournaments, error;
@@ -28,6 +26,9 @@ module.exports = {
     Tournament: async (parent, { id }, ctx, info) => {
       // get userData from ctx
       const { userData } = ctx;
+
+      console.log("io: ", io.Server);
+      ioServer.emit("chat message", "Someone just accessed tournaments...");
       let tournament, error;
       try {
         tournament = await tournamentsModel.findById(id).populate("players");
