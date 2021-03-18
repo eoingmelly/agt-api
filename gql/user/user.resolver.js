@@ -4,7 +4,8 @@ const auth = require("../../utils/auth");
 module.exports = {
   Query: {
     Users: async (parent, args, ctx, info) => {
-      console.log("ctx.isLoggedIn: ", ctx.isLoggedIn);
+      console.log("ctx.req.isLoggedIn: ", ctx.req.isLoggedIn);
+      console.log("ctx.req.uData: ", ctx.req.userData);
 
       let users, error;
       await usersModel
@@ -89,9 +90,13 @@ module.exports = {
     UpdateUser: async (parent, { data, id }, ctx, info) => {
       //ctx should contain the logged in user data here, and he's the only one who can update himself.
       //But for now, just accept that it's by id passed in.
+
+      console.log("cookies: ", ctx.res.cookie);
+
       let error, updatedUser;
       try {
         let updated = { ...data };
+
         await usersModel
           .findByIdAndUpdate(id, updated, { new: true })
           .then((updated) => {
@@ -115,32 +120,20 @@ module.exports = {
       let error = "";
       let success = false;
 
-      console.log(error);
-      console.log(success);
-
       try {
         await usersModel
           .findOne({ email_lowered: email.toLowerCase() })
-          .then((u) => {
+          .then(async (u) => {
             if (u) {
-              if (u.password === password) {
+              console.log("comparing pws");
+              let isMatch = await auth.comparePasswords(u.password, password);
+              console.log("isMatch is: ", isMatch);
+              if (isMatch) {
                 try {
-                  let isMatch = true;
-                  // if (u){
-                  //   isMatch = await bcrypt.compare(password, user.password);
-                  //   superUser = null;
-                  // } else {
-                  //   isMatch = await bcrypt.compare(password, superUser.password);
-                  //   user = null;
-                  // }
-
-                  if (!isMatch) {
-                    console.log("No match found...");
-                    throw new Error("unable to login user");
-                  }
                   console.log("creating access token...");
                   let token = auth.createAccessToken(u);
 
+                  console.log("token is:", token);
                   ctx.res.cookie("access_token", token, {
                     // secure: true,
                     httpOnly: true,
@@ -163,9 +156,13 @@ module.exports = {
                   );
 
                   console.log("Saul Good Man");
+                  success = true;
                 } catch (err) {
                   error = err.message;
                 }
+              } else {
+                console.log("No match found...");
+                throw new Error("unable to login user");
               }
             } else {
               error = "No such user";

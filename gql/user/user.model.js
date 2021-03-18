@@ -23,10 +23,8 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-userSchema.post("save", function (next) {
-  updateSocieties(this);
-  console.log("post everything: ", this);
-  next();
+userSchema.post("save", function () {
+  //updateSocieties(this);
 });
 
 let userModel = mongoose.model("User", userSchema);

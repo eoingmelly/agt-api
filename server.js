@@ -31,15 +31,17 @@ require("./utils/socketNotifications")(io);
 
 const setIOInReq = (req, res, next) => {
   if (!req.io) {
-    console.log("setting in req");
+    console.log("IO set in req", req.io);
     req.io = io;
+  } else {
+    console.log("IO is already set...", req.io);
   }
   next();
 };
 
 const server = {
   start: async () => {
-    // await auth.start();
+    await auth.start();
     await db.connect();
     let loadedSchema = schema;
 
@@ -70,7 +72,7 @@ const server = {
       cookieParser(),
       auth.verifyToken,
       graphqlHTTP((req, res, graphQLParams) => {
-        return { schema, graphiql: true, context: { req: req } };
+        return { schema, graphiql: true, context: { req, res } };
       })
     );
 

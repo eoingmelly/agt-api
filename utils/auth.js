@@ -1,5 +1,6 @@
 // Authentication Handling related functions
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 //TODO Handle token generation, verification and validation in here.
 const auth = {
@@ -9,15 +10,19 @@ const auth = {
     auth.jwtAccExp = 60 * Number(process.env.JWT_ACC_EXP_M);
     auth.jwtRefreshExp = 60 * 60 * 24 * Number(process.env.JWT_REF_EXT_D);
   },
+
+  comparePasswords: async (pwClient, pwServer) => {
+    console.log("pwc: ", pwClient);
+    console.log("pws:", pwServer);
+
+    let isMatch = await bcrypt.compare(pwServer, pwClient);
+    return isMatch;
+  },
   // Creates a new JWT Access token
   createAccessToken: (user) => {
-    return jwt.sign(
-      { uid: user.id, org: user.organisationId },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: auth.jwtAccExp,
-      }
-    );
+    return jwt.sign({ uid: user.id }, process.env.JWT_SECRET, {
+      expiresIn: auth.jwtAccExp,
+    });
   },
   // Creates a new JWT Refresh token
   createRefreshToken: (id) => {
@@ -56,14 +61,12 @@ const auth = {
     // This whole code can be improved greatly in terms of security but for
     // now I think is quite sufficient.
 
-    console.log(
-      "verifying tokens, req.cookies: Also, arse...",
-      req.cookies,
-      req.arse
-    );
-
     let accesstoken = req.cookies.access_token || null;
     let refreshtoken = req.cookies.refresh_token || null;
+
+    console.log("acc ", accesstoken);
+    console.log("ref ", refreshtoken);
+
     if (accesstoken && refreshtoken) {
       // verifies the access token if there is one
       jwt.verify(
@@ -74,8 +77,11 @@ const auth = {
             if (err.name === "TokenExpiredError") {
               let decoded = jwt.decode(accesstoken);
               // Checks on redisDB if there's a token saved with that User ID
+
+              console.log("dec: ", decoded);
+
               let redis_token =
-                decoded.uid === "601b24e78e820f347445e1cb" ? true : null;
+                decoded.uid === "6053de8e157fcb1718fbc13e" ? true : null;
               // console.log("act is: ", accesstoken);
               // console.log("decoded is : ", decoded);
 
@@ -105,6 +111,7 @@ const auth = {
                     expiresIn: auth.jwtAccExp,
                   }
                 );
+                console.log("updating access token...");
                 res.cookie("access_token", token, {
                   secure: true,
                   httpOnly: true,
