@@ -1,6 +1,8 @@
 // Authentication Handling related functions
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { tokensModel } = require("../gql/token/token.model");
+const { GraphQLError } = require("graphql");
 
 //TODO Handle token generation, verification and validation in here.
 const auth = {
@@ -12,29 +14,24 @@ const auth = {
   },
 
   comparePasswords: async (pwClient, pwServer) => {
-    console.log("pwc: ", pwClient);
-    console.log("pws:", pwServer);
-
     let isMatch = await bcrypt.compare(pwServer, pwClient);
     return isMatch;
   },
   // Creates a new JWT Access token
   createAccessToken: (user) => {
-    return jwt.sign({ uid: user.id }, process.env.JWT_SECRET, {
+    let tk = new tokensModel();
+    tk.user = user.id;
+    var theToken = jwt.sign({ uid: user.id }, process.env.JWT_SECRET, {
       expiresIn: auth.jwtAccExp,
     });
+    tk.access_token = theToken;
+    tk.save();
+
+    return tk;
   },
   // Creates a new JWT Refresh token
-  createRefreshToken: (id) => {
-    let refresh_token = auth.refreshTokenGen(64);
-    //let refresh_token_maxage = new Date() + auth.jwtRefreshExp;
-    // session.client.set(
-    //   String(id),
-    //   JSON.stringify({
-    //     refresh_token: refresh_token,
-    //     expires: refresh_token_maxage,
-    //   })
-    // );
+  createRefreshToken: () => {
+    refresh_token = auth.refreshTokenGen(64);
     return refresh_token;
   },
 
@@ -69,39 +66,48 @@ const auth = {
 
     if (accesstoken && refreshtoken) {
       // verifies the access token if there is one
+      console.log("Both tokens exist, verify acc");
       jwt.verify(
         accesstoken,
         process.env.JWT_SECRET,
         async function (err, decoded) {
           if (err) {
             if (err.name === "TokenExpiredError") {
+              console.log("Expired, so we need a new one.");
+
+              console.log(
+                "Check the accessToken to get the user id.",
+                accesstoken
+              );
               let decoded = jwt.decode(accesstoken);
               // Checks on redisDB if there's a token saved with that User ID
 
-              console.log("dec: ", decoded);
+              console.log("Decoded: ", decoded);
+              let srvTok = await tokensModel.findOne({
+                access_token: accesstoken,
+                user: decoded.uid,
+              });
 
-              let redis_token =
-                decoded.uid === "6053de8e157fcb1718fbc13e" ? true : null;
-              // console.log("act is: ", accesstoken);
-              // console.log("decoded is : ", decoded);
+              if (srvTok) {
+                console.log("srvTok acc = ", srvTok.access_token);
+              }
 
-              if (!redis_token || redis_token.refresh_token === refreshtoken) {
+              if (!srvTok) {
                 // If the token does not exist in redis is probably some kind of attack
                 // the req.isLogged is passed as context, in any query we can just validate logged users
                 // on the resolvers by checking if this variable is set to true or false
                 req.isLoggedIn = false;
-                next("Not this time...");
+                next();
               } else {
                 // Here we need to decide what to do with the user, either send him back to
                 // Login or like is now on the code, re-issue the tokens.
-                if (redis_token.expires > new Date()) {
-                  let refresh_token = auth.refreshTokenGen(64);
-                  res.cookie("refresh_token", refresh_token, {
-                    secure: true,
-                    httpOnly: true,
-                    sameSite: "none",
-                  });
-                }
+                let refresh_token = auth.refreshTokenGen(64);
+                res.cookie("refresh_token", refresh_token, {
+                  secure: true,
+                  httpOnly: true,
+                  sameSite: "none",
+                });
+
                 // User id is set in the JWT payload
                 //console.log("about to jwtSign: ", decoded);
                 let token = jwt.sign(
@@ -111,7 +117,13 @@ const auth = {
                     expiresIn: auth.jwtAccExp,
                   }
                 );
-                console.log("updating access token...");
+
+                srvTok = await tokensModel.findByIdAndUpdate({
+                  access_token: token,
+                  user: decoded.uid,
+                });
+
+                console.log("updating access token on client");
                 res.cookie("access_token", token, {
                   secure: true,
                   httpOnly: true,
@@ -119,12 +131,14 @@ const auth = {
                 });
                 // We add the payload to the req Object to pass it in the context object
                 // on the subsequent resolvers.
-                req.userData = decoded;
+                //req.userData = decoded;
                 req.isLoggedIn = true;
                 next();
               }
             } else {
               // Usually either an error in the token itself or somebody trying to guess the token
+              console.log("unverified... ", err);
+
               req.isLoggedIn = false;
               next();
             }
@@ -132,6 +146,7 @@ const auth = {
             // No errors, token is valid and we continue
             // We add the payload to the req Object to pass it in the context object
             // on the subsequent resolvers.
+            console.log("Both tokens exist, verified acc ");
             req.userData = decoded;
             req.isLoggedIn = true;
             next();
@@ -140,6 +155,7 @@ const auth = {
       );
     } else {
       //
+      console.log("eh, not logged in, so log in please! ");
       req.isLoggedIn = false;
       next();
     }

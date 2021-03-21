@@ -133,13 +133,13 @@ module.exports = {
                   console.log("creating access token...");
                   let token = auth.createAccessToken(u);
 
-                  console.log("token is:", token);
-                  ctx.res.cookie("access_token", token, {
+                  console.log("token.access_token is:", token);
+                  ctx.res.cookie("access_token", token.access_token, {
                     // secure: true,
                     httpOnly: true,
                   });
                   console.log("creating refresh token...");
-                  let refresh_token = auth.createRefreshToken(u._id);
+                  let refresh_token = auth.createRefreshToken(token);
 
                   ctx.res.cookie("refresh_token", refresh_token, {
                     // secure: true,

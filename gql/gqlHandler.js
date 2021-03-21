@@ -64,6 +64,7 @@ const printedTypeDefs = print(mergedTypes);
 
 //Here you can set the queries that will need Authorization
 const resolversComposition = {
+  //"Mutation.LoginUser": auth.noLoginRequired(),
   //"Mutation.LoginUser": auth.userHasPermissions(),
   //   "Query.Organisation": auth.userHasPermissions(),
   //   "Query.Organisations": auth.userHasPermissions(),
