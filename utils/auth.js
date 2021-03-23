@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { tokensModel } = require("../gql/token/token.model");
 const { GraphQLError } = require("graphql");
+const mongoose = require("mongoose");
 
 //TODO Handle token generation, verification and validation in here.
 const auth = {
@@ -20,6 +21,7 @@ const auth = {
   // Creates a new JWT Access token
   createAccessToken: (user) => {
     let tk = new tokensModel();
+
     tk.user = user.id;
     var theToken = jwt.sign({ uid: user.id }, process.env.JWT_SECRET, {
       expiresIn: auth.jwtAccExp,
@@ -45,11 +47,6 @@ const auth = {
   },
 
   userHasPermissions: () => (next) => async (root, args, context, info) => {
-    // if (!context.isLoggedIn) {
-    //   throw new GraphQLError("You are not authorized!");
-    // }
-
-    console.log("We Checked for Permissions!!!");
     return next(root, args, context, info);
   },
 
@@ -60,9 +57,6 @@ const auth = {
 
     let accesstoken = req.cookies.access_token || null;
     let refreshtoken = req.cookies.refresh_token || null;
-
-    console.log("acc ", accesstoken);
-    console.log("ref ", refreshtoken);
 
     if (accesstoken && refreshtoken) {
       // verifies the access token if there is one
@@ -82,10 +76,9 @@ const auth = {
               let decoded = jwt.decode(accesstoken);
               // Checks on redisDB if there's a token saved with that User ID
 
-              console.log("Decoded: ", decoded);
               let srvTok = await tokensModel.findOne({
                 access_token: accesstoken,
-                user: decoded.uid,
+                user: mongoose.Types.ObjectId(decoded.uid),
               });
 
               if (srvTok) {
@@ -97,7 +90,7 @@ const auth = {
                 // the req.isLogged is passed as context, in any query we can just validate logged users
                 // on the resolvers by checking if this variable is set to true or false
                 req.isLoggedIn = false;
-                next();
+                return next();
               } else {
                 // Here we need to decide what to do with the user, either send him back to
                 // Login or like is now on the code, re-issue the tokens.
@@ -109,7 +102,6 @@ const auth = {
                 });
 
                 // User id is set in the JWT payload
-                //console.log("about to jwtSign: ", decoded);
                 let token = jwt.sign(
                   { uid: decoded.uid },
                   process.env.JWT_SECRET,
@@ -117,11 +109,15 @@ const auth = {
                     expiresIn: auth.jwtAccExp,
                   }
                 );
+                srvTok = await tokensModel.findOneAndUpdate(
+                  { access_token: accesstoken, user: decoded.uid },
+                  {
+                    access_token: token,
+                    user: mongoose.Types.ObjectId(decoded.uid),
+                  }
+                );
 
-                srvTok = await tokensModel.findByIdAndUpdate({
-                  access_token: token,
-                  user: decoded.uid,
-                });
+                console.log("and now srvTok is: ");
 
                 console.log("updating access token on client");
                 res.cookie("access_token", token, {
@@ -132,15 +128,16 @@ const auth = {
                 // We add the payload to the req Object to pass it in the context object
                 // on the subsequent resolvers.
                 //req.userData = decoded;
+
                 req.isLoggedIn = true;
-                next();
+                return next();
               }
             } else {
               // Usually either an error in the token itself or somebody trying to guess the token
               console.log("unverified... ", err);
 
               req.isLoggedIn = false;
-              next();
+              return next();
             }
           } else {
             // No errors, token is valid and we continue
@@ -149,15 +146,13 @@ const auth = {
             console.log("Both tokens exist, verified acc ");
             req.userData = decoded;
             req.isLoggedIn = true;
-            next();
+            return next();
           }
         }
       );
     } else {
-      //
-      console.log("eh, not logged in, so log in please! ");
       req.isLoggedIn = false;
-      next();
+      return next();
     }
   },
 };

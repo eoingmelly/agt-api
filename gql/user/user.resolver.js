@@ -4,9 +4,6 @@ const auth = require("../../utils/auth");
 module.exports = {
   Query: {
     Users: async (parent, args, ctx, info) => {
-      console.log("ctx.req.isLoggedIn: ", ctx.req.isLoggedIn);
-      console.log("ctx.req.uData: ", ctx.req.userData);
-
       let users, error;
       await usersModel
         .find()
@@ -125,20 +122,14 @@ module.exports = {
           .findOne({ email_lowered: email.toLowerCase() })
           .then(async (u) => {
             if (u) {
-              console.log("comparing pws");
               let isMatch = await auth.comparePasswords(u.password, password);
-              console.log("isMatch is: ", isMatch);
               if (isMatch) {
                 try {
-                  console.log("creating access token...");
                   let token = auth.createAccessToken(u);
-
-                  console.log("token.access_token is:", token);
                   ctx.res.cookie("access_token", token.access_token, {
                     // secure: true,
                     httpOnly: true,
                   });
-                  console.log("creating refresh token...");
                   let refresh_token = auth.createRefreshToken(token);
 
                   ctx.res.cookie("refresh_token", refresh_token, {
@@ -154,14 +145,11 @@ module.exports = {
                       httpOnly: false,
                     }
                   );
-
-                  console.log("Saul Good Man");
                   success = true;
                 } catch (err) {
                   error = err.message;
                 }
               } else {
-                console.log("No match found...");
                 throw new Error("unable to login user");
               }
             } else {
@@ -192,9 +180,6 @@ module.exports = {
       let { password } = data;
       let error = "";
       let success = false;
-
-      console.log(error);
-      console.log(success);
 
       try {
         await usersModel

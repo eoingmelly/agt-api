@@ -6,6 +6,9 @@ module.exports = {
     Tournaments: async (parent, args, ctx, info) => {
       let io = args.io;
       ctx.req.io.emit("chat message", "Someone just accessed tournaments...");
+      if (!ctx.req.isLoggedIn) {
+        return { tournaments: null, error: "Login Required" };
+      }
 
       let tournaments, error;
       // get userData from ctx
@@ -27,8 +30,10 @@ module.exports = {
       // get userData from ctx
       const { userData } = ctx;
 
-      console.log("io: ", io.Server);
-      ioServer.emit("chat message", "Someone just accessed tournaments...");
+      if (!ctx.req.isLoggedIn) {
+        return { tournament: null, error: "Login Required" };
+      }
+      ctx.req.io.emit("chat message", "Someone just accessed tournament...");
       let tournament, error;
       try {
         tournament = await tournamentsModel.findById(id).populate("players");
@@ -40,6 +45,9 @@ module.exports = {
   },
   Mutation: {
     AddTournament: async (parent, { data }, ctx, info) => {
+      if (!ctx.req.isLoggedIn) {
+        return { tournament: null, error: "Login Required" };
+      }
       let newTournamentData = { ...data };
       // get userData from ctx
       const { userData } = ctx;
@@ -74,6 +82,9 @@ module.exports = {
 
     DeleteTournament: async (parent, { id }, ctx, info) => {
       let deletedTournament, error;
+      if (!ctx.req.isLoggedIn) {
+        return { tournament: null, error: "Login Required" };
+      }
       // get userData from ctx
       const { userData } = ctx;
       try {
@@ -99,6 +110,9 @@ module.exports = {
       // ctx should contain the logged in user data here, and he's the only one who can update himself.
       // But for now, just accept that it's by id passed in.
       // get userData from ctx
+      if (!ctx.req.isLoggedIn) {
+        return { tournament: null, error: "Login Required" };
+      }
       const { userData } = ctx;
       let error, updatedTournament;
       try {
